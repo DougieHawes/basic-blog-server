@@ -1,25 +1,25 @@
-import bodyParser from "body-parser";
-import cors from "cors";
-import express from "express";
-import mongoose from "mongoose";
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
-import postRoutes from "./routes/posts.js";
+const cors = require("cors");
+const express = require("express");
+const mongoose = require("mongoose");
+
+const mongoUri = process.env.MONGODB_URI;
+const port = process.env.PORT;
 
 const app = express();
 
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
+app.use(express.json());
 
-app.use("/posts", postRoutes);
+app.listen(port, console.log(`express app running on port:${port}`));
 
-const MONGODB_URI = "mongodb://localhost:27017/basic-blog";
-const PORT = process.env.PORT || 8000;
+app.use("/posts", require("./routes/postRoutes"));
 
-mongoose
-  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() =>
-    app.listen(PORT, () => console.log(`server running on port:${PORT}`))
-  )
-  .catch((error) => console.log(error));
-mongoose.set("useFindAndModify", false);
+mongoose.connect(
+  mongoUri,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  console.log("mongodb connected")
+);
